@@ -77,7 +77,7 @@ def cifar10_eval(sess):
     })
     return acc / 7
 
-def randomTranslation(x):
+def randomTransform(x):
     result = np.empty(shape=[0, 3, 32, 32])
     length = x.shape[0]
     reshapped = x.reshape(length, 3, 32, 32)
@@ -86,8 +86,13 @@ def randomTranslation(x):
     for i, v in enumerate(padded):
         x_offset = randint(0, 8)
         y_offset = randint(0, 8)
-        cropped = v[:, x_offset:x_offset + 32, y_offset:y_offset + 32]
-        result = np.append(result, [cropped], axis=0)
+        should_flip = bool(randint(0, 1))
+        transformed = v[:, x_offset:x_offset + 32, y_offset:y_offset + 32]
+
+        if should_flip:
+            transformed = np.flip(transformed, 2)
+
+        result = np.append(result, [transformed], axis=0)
 
     return result.reshape(length, 3 * 32 * 32)
 
@@ -210,7 +215,7 @@ if __name__ == '__main__':
                     i, j, startIndex, endIndex, cifar10_eval(sess), elapsed_time
                 ))
                 train_step.run(feed_dict={
-                    x: randomTranslation(trainingData['x'][startIndex: endIndex]),
+                    x: randomTransform(trainingData['x'][startIndex: endIndex]),
                     y_: trainingData['y'][startIndex: endIndex],
                     keep_prob: 0.5,
                     learning_rate: breakPoint['learning_rate'],
