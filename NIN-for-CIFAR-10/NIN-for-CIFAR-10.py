@@ -44,9 +44,20 @@ def read_data_sets():
         dataMap = unpickle('./cifar-10-batches-py/data_batch_{0}'.format(i))
         trainingData['x'] = np.concatenate((trainingData['x'], dataMap['data']), axis=0)
         trainingData['y'] = np.concatenate((trainingData['y'], dense_to_one_hot(dataMap['labels'])), axis=0)
+    reshapped_x = trainingData['x'].reshape(-1, 3, 32, 32)
+    r = reshapped_x[:, 0]
+    g = reshapped_x[:, 1]
+    b = reshapped_x[:, 2]
+    trainingData['stackedX'] = np.stack((r, g, b), axis=3).reshape(-1, 3072)
+
     dataMap = unpickle('./cifar-10-batches-py/test_batch')
     testingData['x'] = dataMap['data']
     testingData['y'] = dense_to_one_hot(dataMap['labels'])
+    reshapped_x = testingData['x'].reshape(-1, 3, 32, 32)
+    r = reshapped_x[:, 0]
+    g = reshapped_x[:, 1]
+    b = reshapped_x[:, 2]
+    testingData['stackedX'] = np.stack((r, g, b), axis=3).reshape(-1, 3072)
 
 def weight_variable(shape):
     initial = tf.random_normal(shape, stddev=0.05, dtype=tf.float32)
@@ -66,12 +77,12 @@ def cifar10_eval(sess):
     acc = 0.0
     for i in range(0, 6):
         acc = acc + accuracy.eval(session=sess, feed_dict={
-            x: testingData['x'][i * 1500: (i + 1) * 1500],
+            x: testingData['stackedX'][i * 1500: (i + 1) * 1500],
             y_: testingData['y'][i * 1500: (i + 1) * 1500],
             keep_prob: 1.0,
         })
     acc = acc + accuracy.eval(session=sess, feed_dict={
-        x: testingData['x'][9000:],
+        x: testingData['stackedX'][9000:],
         y_: testingData['y'][9000:],
         keep_prob: 1.0,
     })
@@ -216,7 +227,8 @@ if __name__ == '__main__':
                         i, j, startIndex, endIndex, cifar10_eval(sess), elapsed_time
                     ))
                 train_step.run(feed_dict={
-                    x: randomTransform(trainingData['x'][startIndex: endIndex]),
+                    # x: randomTransform(trainingData['x'][startIndex: endIndex]),
+                    x: trainingData['stackedX'][startIndex: endIndex],
                     y_: trainingData['y'][startIndex: endIndex],
                     keep_prob: 0.5,
                     learning_rate: breakPoint['learning_rate'],
