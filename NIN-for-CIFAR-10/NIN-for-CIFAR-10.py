@@ -211,9 +211,10 @@ if __name__ == '__main__':
                 startIndex = j * BATCH_SIZE
                 endIndex = min(startIndex + BATCH_SIZE, TOTAL_SIZE)
                 elapsed_time = time.time() - start_time
-                print('epoch %d, batch %d (%d ~ %d), Test accuracy %g, time %.1fs' % (
-                    i, j, startIndex, endIndex, cifar10_eval(sess), elapsed_time
-                ))
+                if j % 10 == 0:
+                    print('epoch %d, batch %d (%d ~ %d), Test accuracy %g, time %.1fs' % (
+                        i, j, startIndex, endIndex, cifar10_eval(sess), elapsed_time
+                    ))
                 train_step.run(feed_dict={
                     x: randomTransform(trainingData['x'][startIndex: endIndex]),
                     y_: trainingData['y'][startIndex: endIndex],
