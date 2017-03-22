@@ -16,6 +16,13 @@ testingData = {
     'y': np.empty(shape=[0, 10]),
 }
 
+stdR = None
+stdG = None
+stdB = None
+meanR = None
+meanG = None
+meanB = None
+
 # http://stackoverflow.com/questions/35138131/invalid-argument-error-incompatible-shapes-with-tensorflow
 def print_tf_shapes():
     for k, v in locals().items():
@@ -39,25 +46,44 @@ def unpickle(file):
     fo.close()
     return dict
 
+def normalize(x):
+    global stdR
+    global stdG
+    global stdB
+    global meanR
+    global meanG
+    global meanB
+
+    reshapped_x = x.reshape(-1, 3, 1024)
+    r = reshapped_x[:, 0].flatten()
+    g = reshapped_x[:, 1].flatten()
+    b = reshapped_x[:, 2].flatten()
+
+    if not stdR:
+        stdR = np.std(r)
+        stdG = np.std(g)
+        stdB = np.std(b)
+        meanR = np.mean(r)
+        meanG = np.mean(g)
+        meanB = np.mean(b)
+
+    r = ((r - meanR) / stdR).reshape(-1, 32, 32)
+    g = ((g - meanG) / stdG).reshape(-1, 32, 32)
+    b = ((b - meanB) / stdB).reshape(-1, 32, 32)
+
+    return np.stack((r, g, b), axis=3).reshape(-1, 3072)
+
 def read_data_sets():
     for i in range(1, 6):
         dataMap = unpickle('./cifar-10-batches-py/data_batch_{0}'.format(i))
         trainingData['x'] = np.concatenate((trainingData['x'], dataMap['data']), axis=0)
         trainingData['y'] = np.concatenate((trainingData['y'], dense_to_one_hot(dataMap['labels'])), axis=0)
-    reshapped_x = trainingData['x'].reshape(-1, 3, 32, 32)
-    r = reshapped_x[:, 0]
-    g = reshapped_x[:, 1]
-    b = reshapped_x[:, 2]
-    trainingData['stackedX'] = np.stack((r, g, b), axis=3).reshape(-1, 3072)
+    trainingData['stackedX'] = normalize(trainingData['x'])
 
     dataMap = unpickle('./cifar-10-batches-py/test_batch')
     testingData['x'] = dataMap['data']
     testingData['y'] = dense_to_one_hot(dataMap['labels'])
-    reshapped_x = testingData['x'].reshape(-1, 3, 32, 32)
-    r = reshapped_x[:, 0]
-    g = reshapped_x[:, 1]
-    b = reshapped_x[:, 2]
-    testingData['stackedX'] = np.stack((r, g, b), axis=3).reshape(-1, 3072)
+    testingData['stackedX'] = normalize(testingData['x'])
 
 def weight_variable(shape):
     initial = tf.random_normal(shape, stddev=0.05, dtype=tf.float32)
