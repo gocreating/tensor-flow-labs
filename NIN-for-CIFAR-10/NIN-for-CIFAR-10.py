@@ -133,23 +133,22 @@ def eval_accuracy(sess):
     return acc / testing_batch_count
 
 def randomTransform(x):
-    result = np.empty(shape=[0, 3, 32, 32])
-    length = x.shape[0]
-    reshapped = x.reshape(length, 3, 32, 32)
-    padded = np.pad(reshapped, ((0, 0), (0, 0), (4, 4), (4, 4)), 'constant')
+    result = np.empty(shape=[0, 32, 32, 3])
+    reshapped = x.reshape(-1, 32, 32, 3)
+    padded = np.pad(reshapped, ((0, 0), (4, 4), (4, 4), (0, 0)), 'constant')
 
     for i, v in enumerate(padded):
         x_offset = randint(0, 8)
         y_offset = randint(0, 8)
         should_flip = bool(randint(0, 1))
-        transformed = v[:, x_offset:x_offset + 32, y_offset:y_offset + 32]
+        transformed = v[y_offset:y_offset + 32, x_offset:x_offset + 32, :]
 
         if should_flip:
             transformed = np.flip(transformed, 2)
 
         result = np.append(result, [transformed], axis=0)
 
-    return result.reshape(length, 3 * 32 * 32)
+    return result.reshape(-1, 32 * 32 * 3)
 
 if __name__ == '__main__':
     read_data_sets()
