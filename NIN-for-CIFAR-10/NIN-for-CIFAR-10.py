@@ -1,7 +1,13 @@
+import argparse
 import time
 from random import randint
 import numpy as np
 import tensorflow as tf
+
+parser = argparse.ArgumentParser()
+parser.add_argument('--log', type=str, help='Filename of logs')
+parser.add_argument("--aug", dest='aug', action='store_true', help='Apply data augmentation on training data')
+args = parser.parse_args()
 
 DROPOUT_RATE = 0.5
 BATCH_SIZE = 1500
@@ -251,7 +257,8 @@ if __name__ == '__main__':
         'learning_rate': 0.001,
     }]
 
-    fd_log = open('./log.csv', 'w')
+    filename = args.log or './log.csv'
+    fd_log = open(filename, 'w')
     start_time = time.time()
 
     test_accuracy = eval_accuracy(sess)
@@ -273,13 +280,20 @@ if __name__ == '__main__':
             for j in range(0, training_batch_count):
                 startIndex = j * BATCH_SIZE
                 endIndex = min(startIndex + BATCH_SIZE, TRAINING_DATA_SIZE)
-                train_step.run(feed_dict={
-                    # x: randomTransform(trainingData['x'][startIndex: endIndex]),
-                    x: trainingData['x'][startIndex: endIndex],
-                    y_: trainingData['y'][startIndex: endIndex],
-                    keep_prob: 0.5,
-                    learning_rate: breakPoint['learning_rate'],
-                })
+                if args.aug:
+                    train_step.run(feed_dict={
+                        x: randomTransform(trainingData['x'][startIndex: endIndex]),
+                        y_: trainingData['y'][startIndex: endIndex],
+                        keep_prob: 0.5,
+                        learning_rate: breakPoint['learning_rate'],
+                    })
+                else:
+                    train_step.run(feed_dict={
+                        x: trainingData['x'][startIndex: endIndex],
+                        y_: trainingData['y'][startIndex: endIndex],
+                        keep_prob: 0.5,
+                        learning_rate: breakPoint['learning_rate'],
+                    })
 
             test_accuracy = eval_accuracy(sess)
             train_loss = eval_loss(sess)
