@@ -15,7 +15,7 @@ tar -xvzf ./cifar-10-python.tar.gz
 
 ``` bash
 source ~/tensorflow/bin/activate
-nohup python NIN-for-CIFAR-10.py & # to keep program alive
+nohup python -u NIN-for-CIFAR-10.py & # to keep program alive
 ```
 
 ## Sample Logs
