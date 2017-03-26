@@ -94,8 +94,8 @@ def read_data_sets():
     testingData['x'] = normalize(testingData['raw_x'])
     testingData['y'] = one_hot(np.array(testingData['raw_y']))
 
-def weight_variable(shape):
-    initial = tf.random_normal(shape, stddev=0.05, dtype=tf.float32)
+def weight_variable(shape, stddev=0.05):
+    initial = tf.random_normal(shape, stddev=stddev, dtype=tf.float32)
     return tf.Variable(initial)
 
 def bias_variable(shape):
@@ -160,7 +160,7 @@ if __name__ == '__main__':
     x_image = tf.reshape(x, [-1, 32, 32, 3])
 
     ## conv-1
-    W_conv1 = weight_variable([5, 5, 3, 192])
+    W_conv1 = weight_variable([5, 5, 3, 192], 0.01)
     b_conv1 = tf.Variable(tf.random_normal([192], stddev=0.01, dtype=tf.float32))
     output = tf.nn.relu(conv2d(x_image, W_conv1) + b_conv1)
 
