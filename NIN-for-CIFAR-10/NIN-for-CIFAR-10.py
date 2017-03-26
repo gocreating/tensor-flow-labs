@@ -242,16 +242,17 @@ if __name__ == '__main__':
     for breakPoint in BREAK_POINTS:
         epochs = breakPoint['epochs']
         # loop epochs
-        for i in range(epochs[0], epochs[1] + 1):
+        for epoch in range(epochs[0], epochs[1] + 1):
+            test_accuracy = cifar10_eval(sess)
+            elapsed_time = time.time() - start_time
+            # print log before training current epoch
+            print('epoch %d, Test accuracy %g, time %.1fs' % (
+                epoch, test_accuracy, elapsed_time
+            ))
             # feed through data for 1 time
             for j in range(0, batchCount):
                 startIndex = j * BATCH_SIZE
                 endIndex = min(startIndex + BATCH_SIZE, TOTAL_SIZE)
-                elapsed_time = time.time() - start_time
-                if j % 10 == 0:
-                    print('epoch %d, batch %d (%d ~ %d), Test accuracy %g, time %.1fs' % (
-                        i, j, startIndex, endIndex, cifar10_eval(sess), elapsed_time
-                    ))
                 train_step.run(feed_dict={
                     # x: randomTransform(trainingData['x'][startIndex: endIndex]),
                     x: trainingData['x'][startIndex: endIndex],
