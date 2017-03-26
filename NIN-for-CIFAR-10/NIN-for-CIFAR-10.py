@@ -5,7 +5,16 @@ import tensorflow as tf
 
 DROPOUT_RATE = 0.5
 BATCH_SIZE = 1500
-TOTAL_SIZE = 50000
+TRAINING_DATA_SIZE = 50000
+TESTING_DATA_SIZE = 10000
+
+training_batch_count = TRAINING_DATA_SIZE / BATCH_SIZE
+if TRAINING_DATA_SIZE % BATCH_SIZE is not 0:
+    training_batch_count = training_batch_count + 1
+
+testing_batch_count = TESTING_DATA_SIZE / BATCH_SIZE
+if TESTING_DATA_SIZE % BATCH_SIZE is not 0:
+    testing_batch_count = testing_batch_count + 1
 
 trainingData = {
     'raw_x': np.empty(shape=[0, 32 * 32 * 3], dtype=int),
@@ -99,20 +108,29 @@ def conv2d(x, W):
 def max_pool_3x3(x):
     return tf.nn.max_pool(x, ksize=[1, 3, 3, 1], strides=[1, 2, 2, 1], padding='SAME')
 
-def cifar10_eval(sess):
-    acc = 0.0
-    for i in range(0, 6):
-        acc = acc + accuracy.eval(session=sess, feed_dict={
-            x: testingData['x'][i * 1500: (i + 1) * 1500],
-            y_: testingData['y'][i * 1500: (i + 1) * 1500],
+def eval_loss(sess):
+    loss = 0.0
+    for i in range(0, training_batch_count):
+        startIndex = i * BATCH_SIZE
+        endIndex = min(startIndex + BATCH_SIZE, TRAINING_DATA_SIZE)
+        loss = loss + cross_entropy.eval(session=sess, feed_dict={
+            x: trainingData['x'][startIndex: endIndex],
+            y_: trainingData['y'][startIndex: endIndex],
             keep_prob: 1.0,
         })
-    acc = acc + accuracy.eval(session=sess, feed_dict={
-        x: testingData['x'][9000:],
-        y_: testingData['y'][9000:],
-        keep_prob: 1.0,
-    })
-    return acc / 7
+    return loss / training_batch_count
+
+def eval_accuracy(sess):
+    acc = 0.0
+    for i in range(0, testing_batch_count):
+        startIndex = i * BATCH_SIZE
+        endIndex = min(startIndex + BATCH_SIZE, TESTING_DATA_SIZE)
+        acc = acc + accuracy.eval(session=sess, feed_dict={
+            x: testingData['x'][startIndex: endIndex],
+            y_: testingData['y'][startIndex: endIndex],
+            keep_prob: 1.0,
+        })
+    return acc / testing_batch_count
 
 def randomTransform(x):
     result = np.empty(shape=[0, 3, 32, 32])
@@ -222,11 +240,6 @@ if __name__ == '__main__':
     # initize variable
     sess.run(tf.global_variables_initializer())
 
-    batchCount = TOTAL_SIZE / BATCH_SIZE
-    if TOTAL_SIZE % BATCH_SIZE is not 0:
-        batchCount = batchCount + 1
-
-    start_time = time.time()
 
     BREAK_POINTS = [{
         'epochs': [1, 80],
@@ -239,23 +252,28 @@ if __name__ == '__main__':
         'learning_rate': 0.001,
     }]
 
-    fd_accuracy = open('./accuracy.csv', 'w')
+    fd_log = open('./log.csv', 'w')
+    start_time = time.time()
+
+    test_accuracy = eval_accuracy(sess)
+    train_loss = eval_loss(sess)
+    elapsed_time = time.time() - start_time
+    # print initial log
+    print('Epoch %d, Test accuracy %g, Train loss %s, Elapsed time %.1fs' % (
+        0, test_accuracy, train_loss, elapsed_time
+    ))
+    fd_log.write('{0},{1},{2},{3}\n'.format(
+        0, test_accuracy, train_loss, elapsed_time
+    ))
+
     for breakPoint in BREAK_POINTS:
         epochs = breakPoint['epochs']
         # loop epochs
         for epoch in range(epochs[0], epochs[1] + 1):
-            test_accuracy = cifar10_eval(sess)
-            elapsed_time = time.time() - start_time
-            # print log before training current epoch
-            print('epoch %d, Test accuracy %g, time %.1fs' % (
-                epoch, test_accuracy, elapsed_time
-            ))
-            fd_accuracy.write('{0},{1},{2}\n'.format(epoch, test_accuracy, elapsed_time))
-
             # feed through data for 1 time
-            for j in range(0, batchCount):
+            for j in range(0, training_batch_count):
                 startIndex = j * BATCH_SIZE
-                endIndex = min(startIndex + BATCH_SIZE, TOTAL_SIZE)
+                endIndex = min(startIndex + BATCH_SIZE, TRAINING_DATA_SIZE)
                 train_step.run(feed_dict={
                     # x: randomTransform(trainingData['x'][startIndex: endIndex]),
                     x: trainingData['x'][startIndex: endIndex],
@@ -264,6 +282,15 @@ if __name__ == '__main__':
                     learning_rate: breakPoint['learning_rate'],
                 })
 
-    fd_accuracy.close()
-    ## final testing
-    print('final epoch %d, Test accuracy %g' % (i, cifar10_eval(sess)))
+            test_accuracy = eval_accuracy(sess)
+            train_loss = eval_loss(sess)
+            elapsed_time = time.time() - start_time
+            # print log after training current epoch
+            print('Epoch %d, Test accuracy %g, Train loss %s, Elapsed time %.1fs' % (
+                epoch, test_accuracy, train_loss, elapsed_time
+            ))
+            fd_log.write('{0},{1},{2},{3}\n'.format(
+                epoch, test_accuracy, train_loss, elapsed_time
+            ))
+
+    fd_log.close()
