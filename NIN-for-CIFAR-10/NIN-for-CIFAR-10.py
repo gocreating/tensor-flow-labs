@@ -159,7 +159,7 @@ if __name__ == '__main__':
     x_image = tf.reshape(x, [-1, 32, 32, 3])
 
     ## conv-1
-    W_conv1 = weight_variable([5, 5, 3, 192], 0.01)
+    W_conv1 = weight_variable([5, 5, 3, 192])
     b_conv1 = tf.Variable(tf.random_normal([192], stddev=0.01, dtype=tf.float32))
     output = tf.nn.relu(conv2d(x_image, W_conv1) + b_conv1)
 
