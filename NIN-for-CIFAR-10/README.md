@@ -1,4 +1,10 @@
-# Report
+# NIN for CIFAR-10
+
+## Installation
+
+``` bash
+sudo apt-get install python-matplotlib
+```
 
 ## Download Data
 
@@ -7,36 +13,72 @@ wget http://www.cs.toronto.edu/~kriz/cifar-10-python.tar.gz
 tar -xvzf ./cifar-10-python.tar.gz
 ```
 
-## Implement NIN
-
-## Implement Data Augmentation
-
 ## Up and Running
+
+> Use `nohup` to keep program alive
 
 ``` bash
 source ~/tensorflow/bin/activate
-nohup python -u NIN-for-CIFAR-10.py & # to keep program alive
+nohup python -u NIN-for-CIFAR-10.py --log "no-aug-logs.csv" &
+nohup python -u NIN-for-CIFAR-10.py --aug --log "aug-logs.csv" &
 ```
 
-## Sample Logs
+## Sample Console Logs
 
 ```
-epoch 1, batch 0 (0 ~ 1500), Test accuracy 0.100429, time 0.0s
-epoch 1, batch 1 (1500 ~ 3000), Test accuracy 0.100619, time 6.1s
-epoch 1, batch 2 (3000 ~ 4500), Test accuracy 0.1, time 9.4s
-epoch 1, batch 3 (4500 ~ 6000), Test accuracy 0.100333, time 12.7s
-epoch 1, batch 4 (6000 ~ 7500), Test accuracy 0.100333, time 15.9s
-epoch 1, batch 5 (7500 ~ 9000), Test accuracy 0.100333, time 19.2s
+Epoch 1, Test accuracy 0.174524, Train loss 2.28849807206, Elapsed time 67.6s
+Epoch 2, Test accuracy 0.158381, Train loss 2.26725660352, Elapsed time 118.2s
+Epoch 3, Test accuracy 0.19581, Train loss 2.18239071089, Elapsed time 168.6s
+Epoch 4, Test accuracy 0.19819, Train loss 2.15034614591, Elapsed time 219.1s
+Epoch 5, Test accuracy 0.204476, Train loss 2.09548012649, Elapsed time 269.5s
+Epoch 6, Test accuracy 0.129333, Train loss 2.16256986646, Elapsed time 319.9s
+Epoch 7, Test accuracy 0.164905, Train loss 2.12558329807, Elapsed time 370.2s
+Epoch 8, Test accuracy 0.20619, Train loss 2.12630182855, Elapsed time 420.5s
+Epoch 9, Test accuracy 0.227095, Train loss 2.09054305273, Elapsed time 470.9s
+Epoch 10, Test accuracy 0.166095, Train loss 2.15404876541, Elapsed time 521.1s
+Epoch 11, Test accuracy 0.222429, Train loss 2.07544895481, Elapsed time 571.4s
+Epoch 12, Test accuracy 0.227286, Train loss 2.04094898701, Elapsed time 621.6s
+Epoch 13, Test accuracy 0.236238, Train loss 2.03972777549, Elapsed time 671.9s
+Epoch 14, Test accuracy 0.224619, Train loss 2.0527709407, Elapsed time 722.2s
+Epoch 15, Test accuracy 0.238524, Train loss 2.03319939445, Elapsed time 772.5s
+Epoch 16, Test accuracy 0.256667, Train loss 1.98097934793, Elapsed time 822.9s
+Epoch 17, Test accuracy 0.22, Train loss 2.06845567507, Elapsed time 873.1s
+Epoch 18, Test accuracy 0.220524, Train loss 2.13206830445, Elapsed time 923.4s
+Epoch 19, Test accuracy 0.258714, Train loss 1.96293732349, Elapsed time 973.8s
+Epoch 20, Test accuracy 0.253857, Train loss 1.98042768941, Elapsed time 1024.1s
+Epoch 21, Test accuracy 0.273571, Train loss 1.92065281027, Elapsed time 1074.5s
+Epoch 22, Test accuracy 0.271952, Train loss 1.92781277264, Elapsed time 1124.8s
+Epoch 23, Test accuracy 0.290762, Train loss 1.8833787862, Elapsed time 1175.2s
 ...
-epoch 1, batch 31 (46500 ~ 48000), Test accuracy 0.0998095, time 103.9s
-epoch 1, batch 32 (48000 ~ 49500), Test accuracy 0.0998095, time 107.1s
-epoch 1, batch 33 (49500 ~ 50000), Test accuracy 0.0998095, time 110.4s
-epoch 2, batch 0 (0 ~ 1500), Test accuracy 0.0998095, time 113.8s
-epoch 2, batch 1 (1500 ~ 3000), Test accuracy 0.0998095, time 117.0s
-epoch 2, batch 2 (3000 ~ 4500), Test accuracy 0.0998095, time 120.3s
-epoch 2, batch 3 (4500 ~ 6000), Test accuracy 0.100095, time 123.6s
-epoch 2, batch 4 (6000 ~ 7500), Test accuracy 0.100095, time 126.8s
-epoch 2, batch 5 (7500 ~ 9000), Test accuracy 0.100095, time 130.1s
+```
+
+## Sample File Logs
+
+```
+0,0.10061904788,2.30240570798,15.2526872158
+1,0.174523811255,2.28849807206,67.5721940994
+2,0.158380949071,2.26725660352,118.155235052
+3,0.195809515459,2.18239071089,168.612190008
+4,0.198190469827,2.15034614591,219.061039209
+5,0.20447618195,2.09548012649,269.49122715
+6,0.129333328988,2.16256986646,319.861015081
+7,0.164904754077,2.12558329807,370.200902224
+8,0.206190466881,2.12630182855,420.543041229
+9,0.227095225028,2.09054305273,470.865853071
+10,0.166095233389,2.15404876541,521.095661163
+11,0.222428568772,2.07544895481,571.354311228
+12,0.227285702314,2.04094898701,621.642080069
+13,0.236238087927,2.03972777549,671.910745144
+14,0.224619041596,2.0527709407,722.199918032
+15,0.238523800458,2.03319939445,772.522424221
+16,0.256666656051,1.98097934793,822.862049103
+17,0.219999986035,2.06845567507,873.111236095
+18,0.220523804426,2.13206830445,923.434288025
+19,0.258714273572,1.96293732349,973.78949523
+20,0.253857135773,1.98042768941,1024.12503815
+21,0.273571423122,1.92065281027,1074.46490121
+22,0.271952382156,1.92781277264,1124.8094461
+23,0.2907619008,1.8833787862,1175.18159604
 ...
 ```
 
