@@ -239,6 +239,7 @@ if __name__ == '__main__':
         'learning_rate': 0.001,
     }]
 
+    fd_accuracy = open('./accuracy.csv', 'w')
     for breakPoint in BREAK_POINTS:
         epochs = breakPoint['epochs']
         # loop epochs
@@ -249,6 +250,8 @@ if __name__ == '__main__':
             print('epoch %d, Test accuracy %g, time %.1fs' % (
                 epoch, test_accuracy, elapsed_time
             ))
+            fd_accuracy.write('{0},{1},{2}\n'.format(epoch, test_accuracy, elapsed_time))
+
             # feed through data for 1 time
             for j in range(0, batchCount):
                 startIndex = j * BATCH_SIZE
@@ -261,5 +264,6 @@ if __name__ == '__main__':
                     learning_rate: breakPoint['learning_rate'],
                 })
 
+    fd_accuracy.close()
     ## final testing
     print('final epoch %d, Test accuracy %g' % (i, cifar10_eval(sess)))
