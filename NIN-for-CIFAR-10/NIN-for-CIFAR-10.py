@@ -8,10 +8,14 @@ BATCH_SIZE = 1500
 TOTAL_SIZE = 50000
 
 trainingData = {
+    'raw_x': np.empty(shape=[0, 32 * 32 * 3], dtype=int),
+    'raw_y': np.empty(shape=[0], dtype=int),
     'x': np.empty(shape=[0, 32 * 32 * 3]),
     'y': np.empty(shape=[0, 10]),
 }
 testingData = {
+    'raw_x': np.empty(shape=[0, 32 * 32 * 3], dtype=int),
+    'raw_y': np.empty(shape=[0], dtype=int),
     'x': np.empty(shape=[0, 32 * 32 * 3]),
     'y': np.empty(shape=[0, 10]),
 }
@@ -29,15 +33,9 @@ def print_tf_shapes():
         if type(v) is tf.Variable or type(v) is tf.Tensor:
             print("{0}: {1}".format(k, v))
 
-# http://stackoverflow.com/questions/33681517/tensorflow-one-hot-encoder
-def dense_to_one_hot(labels_dense, num_classes=10):
-    """Convert class labels from scalars to one-hot vectors."""
-    labels_dense = np.array(labels_dense)
-    num_labels = labels_dense.shape[0]
-    index_offset = np.arange(num_labels) * num_classes
-    labels_one_hot = np.zeros((num_labels, num_classes))
-    labels_one_hot.flat[index_offset + labels_dense.ravel()] = 1
-    return labels_one_hot
+def one_hot(y):
+    n_values = np.max(y) + 1
+    return np.eye(n_values)[y]
 
 def unpickle(file):
     import cPickle
@@ -76,14 +74,16 @@ def normalize(x):
 def read_data_sets():
     for i in range(1, 6):
         dataMap = unpickle('./cifar-10-batches-py/data_batch_{0}'.format(i))
-        trainingData['x'] = np.concatenate((trainingData['x'], dataMap['data']), axis=0)
-        trainingData['y'] = np.concatenate((trainingData['y'], dense_to_one_hot(dataMap['labels'])), axis=0)
-    trainingData['stackedX'] = normalize(trainingData['x'])
+        trainingData['raw_x'] = np.concatenate((trainingData['raw_x'], dataMap['data']), axis=0)
+        trainingData['raw_y'] = np.concatenate((trainingData['raw_y'], dataMap['labels']), axis=0)
+    trainingData['x'] = normalize(trainingData['raw_x'])
+    trainingData['y'] = one_hot(np.array(trainingData['raw_y']))
 
     dataMap = unpickle('./cifar-10-batches-py/test_batch')
-    testingData['x'] = dataMap['data']
-    testingData['y'] = dense_to_one_hot(dataMap['labels'])
-    testingData['stackedX'] = normalize(testingData['x'])
+    testingData['raw_x'] = dataMap['data']
+    testingData['raw_y'] = dataMap['labels']
+    testingData['x'] = normalize(testingData['raw_x'])
+    testingData['y'] = one_hot(np.array(testingData['raw_y']))
 
 def weight_variable(shape):
     initial = tf.random_normal(shape, stddev=0.05, dtype=tf.float32)
@@ -103,12 +103,12 @@ def cifar10_eval(sess):
     acc = 0.0
     for i in range(0, 6):
         acc = acc + accuracy.eval(session=sess, feed_dict={
-            x: testingData['stackedX'][i * 1500: (i + 1) * 1500],
+            x: testingData['x'][i * 1500: (i + 1) * 1500],
             y_: testingData['y'][i * 1500: (i + 1) * 1500],
             keep_prob: 1.0,
         })
     acc = acc + accuracy.eval(session=sess, feed_dict={
-        x: testingData['stackedX'][9000:],
+        x: testingData['x'][9000:],
         y_: testingData['y'][9000:],
         keep_prob: 1.0,
     })
@@ -254,7 +254,7 @@ if __name__ == '__main__':
                     ))
                 train_step.run(feed_dict={
                     # x: randomTransform(trainingData['x'][startIndex: endIndex]),
-                    x: trainingData['stackedX'][startIndex: endIndex],
+                    x: trainingData['x'][startIndex: endIndex],
                     y_: trainingData['y'][startIndex: endIndex],
                     keep_prob: 0.5,
                     learning_rate: breakPoint['learning_rate'],
