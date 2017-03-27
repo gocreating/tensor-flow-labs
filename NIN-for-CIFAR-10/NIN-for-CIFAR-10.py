@@ -1,4 +1,5 @@
 import argparse
+import math
 import time
 from random import randint
 import numpy as np
@@ -8,6 +9,7 @@ parser = argparse.ArgumentParser()
 parser.add_argument('--log', type=str, help='Filename of logs')
 parser.add_argument("--aug", dest='aug', action='store_true', help='Apply data augmentation on training data')
 parser.add_argument("--elu", dest='elu', action='store_true', help='Use elu instead of relu')
+parser.add_argument("--weight-initial", dest='weight_init', action='store_true', help='Use weight initialization')
 args = parser.parse_args()
 
 DROPOUT_RATE = 0.5
@@ -106,6 +108,8 @@ def read_data_sets():
     testingData['y'] = one_hot(np.array(testingData['raw_y']))
 
 def weight_variable(shape, stddev=0.05):
+    if args.weight_init:
+        stddev = math.sqrt(2 / (shape[0] * shape[1] * shape[3]))
     initial = tf.random_normal(shape, stddev=stddev, dtype=tf.float32)
     return tf.Variable(initial)
 
