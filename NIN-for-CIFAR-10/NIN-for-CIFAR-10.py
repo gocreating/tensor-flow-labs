@@ -10,7 +10,7 @@ parser.add_argument("--aug", dest='aug', action='store_true', help='Apply data a
 args = parser.parse_args()
 
 DROPOUT_RATE = 0.5
-BATCH_SIZE = 1500
+BATCH_SIZE = 128
 TRAINING_DATA_SIZE = 50000
 TESTING_DATA_SIZE = 10000
 
