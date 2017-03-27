@@ -82,6 +82,13 @@ Epoch 23, Test accuracy 0.290762, Train loss 1.8833787862, Elapsed time 1175.2s
 ...
 ```
 
+## Plot
+
+``` bash
+python plot.py --log "no-aug-logs.csv"
+python plot.py --log "aug-logs.csv"
+```
+
 ## Windows
 
 ### Installation of CPU Version
