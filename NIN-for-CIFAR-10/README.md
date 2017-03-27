@@ -20,7 +20,9 @@ tar -xvzf ./cifar-10-python.tar.gz
 ``` bash
 source ~/tensorflow/bin/activate
 nohup python -u NIN-for-CIFAR-10.py --log "no-aug-logs.csv" &
-nohup python -u NIN-for-CIFAR-10.py --aug --log "aug-logs.csv" &
+nohup python -u NIN-for-CIFAR-10.py --log "aug-logs.csv" --aug &
+nohup python -u NIN-for-CIFAR-10.py --log "aug-elu-logs.csv" --aug --elu &
+nohup python -u NIN-for-CIFAR-10.py --log "aug-wi-logs.csv" --aug --weight-initial &
 ```
 
 ## Sample Console Logs
@@ -87,6 +89,7 @@ Epoch 23, Test accuracy 0.290762, Train loss 1.8833787862, Elapsed time 1175.2s
 ``` bash
 python plot.py --log "no-aug-logs.csv"
 python plot.py --log "aug-logs.csv"
+python plot.py --log "aug-elu-logs.csv"
 ```
 
 ## Windows
