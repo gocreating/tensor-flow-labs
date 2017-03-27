@@ -237,7 +237,7 @@ if __name__ == '__main__':
     cross_entropy = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(labels=y_, logits=output))
 
     # optimizer SGD
-    train_step = tf.train.MomentumOptimizer(learning_rate, 0.9, use_nesterov=True).minimize(cross_entropy)
+    train_step = tf.train.MomentumOptimizer(learning_rate, 0.9).minimize(cross_entropy)
 
     # prediction
     correct_prediction = tf.equal(tf.argmax(output, 1), tf.argmax(y_, 1))
