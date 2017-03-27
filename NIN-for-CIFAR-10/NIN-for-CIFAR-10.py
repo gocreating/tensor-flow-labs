@@ -10,6 +10,7 @@ parser.add_argument('--log', type=str, help='Filename of logs')
 parser.add_argument("--aug", dest='aug', action='store_true', help='Apply data augmentation on training data')
 parser.add_argument("--elu", dest='elu', action='store_true', help='Use elu instead of relu')
 parser.add_argument("--weight-initial", dest='weight_init', action='store_true', help='Use weight initialization')
+parser.add_argument("--bn", dest='bn', action='store_true', help='Use batch normalization')
 args = parser.parse_args()
 
 DROPOUT_RATE = 0.5
@@ -123,6 +124,23 @@ def conv2d(x, W):
 def max_pool_3x3(x):
     return tf.nn.max_pool(x, ksize=[1, 3, 3, 1], strides=[1, 2, 2, 1], padding='SAME')
 
+def activation(x):
+    if args.elu:
+        return tf.nn.elu(x)
+    else:
+        return tf.nn.relu(x)
+
+def batch_norm(x, is_training, scope):
+    return tf.contrib.layers.batch_norm(
+        x, is_training=is_training, updates_collections=None, decay=0.9, scope=scope
+    )
+
+def conditional_bn_and_act(x, b, is_training, scope):
+    if args.bn:
+        return batch_norm(activation(x), is_training, scope)
+    else:
+        return activation(x + b)
+
 def eval_loss(sess):
     loss = 0.0
     for i in range(0, training_batch_count):
@@ -132,6 +150,7 @@ def eval_loss(sess):
             x: trainingData['x'][startIndex: endIndex],
             y_: trainingData['y'][startIndex: endIndex],
             keep_prob: 1.0,
+            is_training: False,
         })
     return loss / training_batch_count
 
@@ -144,6 +163,7 @@ def eval_accuracy(sess):
             x: testingData['x'][startIndex: endIndex],
             y_: testingData['y'][startIndex: endIndex],
             keep_prob: 1.0,
+            is_training: False,
         })
     return acc / testing_batch_count
 
@@ -171,31 +191,23 @@ if __name__ == '__main__':
     x = tf.placeholder(tf.float32, [None, 32 * 32 * 3])
     y_ = tf.placeholder(tf.float32, [None, 10])
     keep_prob = tf.placeholder(tf.float32)
+    is_training = tf.placeholder(tf.bool)
     x_image = tf.reshape(x, [-1, 32, 32, 3])
 
     ## conv-1
     W_conv1 = weight_variable([5, 5, 3, 192])
     b_conv1 = tf.Variable(tf.random_normal([192], stddev=0.01, dtype=tf.float32))
-    if args.elu:
-        output = tf.nn.elu(conv2d(x_image, W_conv1) + b_conv1)
-    else:
-        output = tf.nn.relu(conv2d(x_image, W_conv1) + b_conv1)
+    output = conditional_bn_and_act(conv2d(x_image, W_conv1), b_conv1, is_training, 'conv1')
 
     ## mlp-1-1
     W_MLP11 = weight_variable([1, 1, 192, 160])
     b_MLP11 = bias_variable([160])
-    if args.elu:
-        output = tf.nn.elu(conv2d(output, W_MLP11) + b_MLP11)
-    else:
-        output = tf.nn.relu(conv2d(output, W_MLP11) + b_MLP11)
+    output = conditional_bn_and_act(conv2d(output, W_MLP11), b_MLP11, is_training, 'MLP11')
 
     ## mlp-1-2
     W_MLP12 = weight_variable([1, 1, 160, 96])
     b_MLP12 = bias_variable([96])
-    if args.elu:
-        output = tf.nn.elu(conv2d(output, W_MLP12) + b_MLP12)
-    else:
-        output = tf.nn.relu(conv2d(output, W_MLP12) + b_MLP12)
+    output = conditional_bn_and_act(conv2d(output, W_MLP12), b_MLP12, is_training, 'MLP12')
 
     ## max pooling
     output = max_pool_3x3(output)
@@ -206,26 +218,17 @@ if __name__ == '__main__':
     ## conv-2
     W_conv2 = weight_variable([5, 5, 96, 192])
     b_conv2 = tf.Variable(tf.random_normal([192], stddev=0.01, dtype=tf.float32))
-    if args.elu:
-        output = tf.nn.elu(conv2d(output, W_conv2) + b_conv2)
-    else:
-        output = tf.nn.relu(conv2d(output, W_conv2) + b_conv2)
+    output = conditional_bn_and_act(conv2d(output, W_conv2), b_conv2, is_training, 'conv2')
 
     ## mlp-2-1
     W_MLP21 = weight_variable([1, 1, 192, 192])
     b_MLP21 = bias_variable([192])
-    if args.elu:
-        output = tf.nn.elu(conv2d(output, W_MLP21) + b_MLP21)
-    else:
-        output = tf.nn.relu(conv2d(output, W_MLP21) + b_MLP21)
+    output = conditional_bn_and_act(conv2d(output, W_MLP21), b_MLP21, is_training, 'MLP21')
 
     ## mlp-2-2
     W_MLP22 = weight_variable([1, 1, 192, 192])
     b_MLP22 = bias_variable([192])
-    if args.elu:
-        output = tf.nn.elu(conv2d(output, W_MLP22) + b_MLP22)
-    else:
-        output = tf.nn.relu(conv2d(output, W_MLP22) + b_MLP22)
+    output = conditional_bn_and_act(conv2d(output, W_MLP22), b_MLP22, is_training, 'MLP22')
 
     ## max pooling
     output = max_pool_3x3(output)
@@ -236,26 +239,17 @@ if __name__ == '__main__':
     ## conv-3 layer
     W_conv3 = weight_variable([3, 3, 192, 192])
     b_conv3 = tf.Variable(tf.random_normal([192], stddev=0.01, dtype=tf.float32))
-    if args.elu:
-        output = tf.nn.elu(conv2d(output, W_conv3) + b_conv3)
-    else:
-        output = tf.nn.relu(conv2d(output, W_conv3) + b_conv3)
+    output = conditional_bn_and_act(conv2d(output, W_conv3), b_conv3, is_training, 'conv3')
 
     ## mlp-2-1
     W_MLP31 = weight_variable([1, 1, 192, 192])
     b_MLP31 = bias_variable([192])
-    if args.elu:
-        output = tf.nn.elu(conv2d(output, W_MLP31) + b_MLP31)
-    else:
-        output = tf.nn.relu(conv2d(output, W_MLP31) + b_MLP31)
+    output = conditional_bn_and_act(conv2d(output, W_MLP31), b_MLP31, is_training, 'MLP31')
 
     ## mlp-2-2
     W_MLP32 = weight_variable([1, 1, 192, 10])
     b_MLP32 = bias_variable([10])
-    if args.elu:
-        output = tf.nn.elu(conv2d(output, W_MLP32) + b_MLP32)
-    else:
-        output = tf.nn.relu(conv2d(output, W_MLP32) + b_MLP32)
+    output = conditional_bn_and_act(conv2d(output, W_MLP32), b_MLP32, is_training, 'MLP32')
 
     ## global average
     output = tf.nn.avg_pool(output, ksize=[1, 8, 8, 1], strides=[1, 1, 1, 1], padding='VALID')
@@ -321,6 +315,7 @@ if __name__ == '__main__':
                         x: randomTransform(trainingData['x'][startIndex: endIndex]),
                         y_: trainingData['y'][startIndex: endIndex],
                         keep_prob: 0.5,
+                        is_training: True,
                         learning_rate: breakPoint['learning_rate'],
                     })
                 else:
@@ -328,6 +323,7 @@ if __name__ == '__main__':
                         x: trainingData['x'][startIndex: endIndex],
                         y_: trainingData['y'][startIndex: endIndex],
                         keep_prob: 0.5,
+                        is_training: True,
                         learning_rate: breakPoint['learning_rate'],
                     })
 
