@@ -82,6 +82,24 @@ Epoch 23, Test accuracy 0.290762, Train loss 1.8833787862, Elapsed time 1175.2s
 ...
 ```
 
+## Windows
+
+### Installation of CPU Version
+
+Install [Anaconda](https://www.continuum.io/downloads)
+
+```
+conda create -n tensorflow python=3.5
+activate tensorflow
+pip install --ignore-installed --upgrade https://storage.googleapis.com/tensorflow/windows/cpu/tensorflow-1.0.1-cp35-cp35m-win_amd64.whl
+```
+
+### Usage
+
+```
+activate tensorflow
+```
+
 ## Reference
 
 - <http://www.cs.toronto.edu/~kriz/cifar.html>
