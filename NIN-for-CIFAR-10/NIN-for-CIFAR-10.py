@@ -48,9 +48,13 @@ def print_tf_shapes():
         if type(v) is tf.Variable or type(v) is tf.Tensor:
             print("{0}: {1}".format(k, v))
 
-def one_hot(y):
-    n_values = np.max(y) + 1
-    return np.eye(n_values)[y]
+# http://stackoverflow.com/questions/33681517/tensorflow-one-hot-encoder
+def one_hot(labels_dense, num_classes=10):
+    num_labels = labels_dense.shape[0]
+    index_offset = np.arange(num_labels) * num_classes
+    labels_one_hot = np.zeros((num_labels, num_classes))
+    labels_one_hot.flat[index_offset + labels_dense.ravel()] = 1
+    return labels_one_hot
 
 def unpickle(file):
     import cPickle
