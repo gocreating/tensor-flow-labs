@@ -19,9 +19,25 @@ def plot_accuracy():
         linewidth=1
     )
     plt.xlabel('Epoch')
-    plt.ylabel('Accuracy(100%)')
+    plt.ylabel('Accuracy (100%)')
     plt.savefig(
         './accuracy.jpg',
+        dpi=400,
+        format='jpg'
+    )
+    plt.clf()
+
+def plot_error():
+    line_accuracy = plt.plot(
+        logs[:, 0],
+        1 - logs[:, 1],
+        color='red',
+        linewidth=1
+    )
+    plt.xlabel('Epoch')
+    plt.ylabel('Test Error (100%)')
+    plt.savefig(
+        './error.jpg',
         dpi=400,
         format='jpg'
     )
@@ -44,4 +60,5 @@ def plot_loss():
     plt.clf()
 
 plot_accuracy()
+plot_error()
 plot_loss()
