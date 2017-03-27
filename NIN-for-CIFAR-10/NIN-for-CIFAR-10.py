@@ -7,6 +7,7 @@ import tensorflow as tf
 parser = argparse.ArgumentParser()
 parser.add_argument('--log', type=str, help='Filename of logs')
 parser.add_argument("--aug", dest='aug', action='store_true', help='Apply data augmentation on training data')
+parser.add_argument("--elu", dest='elu', action='store_true', help='Use elu instead of relu')
 args = parser.parse_args()
 
 DROPOUT_RATE = 0.5
@@ -171,17 +172,26 @@ if __name__ == '__main__':
     ## conv-1
     W_conv1 = weight_variable([5, 5, 3, 192])
     b_conv1 = tf.Variable(tf.random_normal([192], stddev=0.01, dtype=tf.float32))
-    output = tf.nn.relu(conv2d(x_image, W_conv1) + b_conv1)
+    if args.elu:
+        output = tf.nn.elu(conv2d(x_image, W_conv1) + b_conv1)
+    else:
+        output = tf.nn.relu(conv2d(x_image, W_conv1) + b_conv1)
 
     ## mlp-1-1
     W_MLP11 = weight_variable([1, 1, 192, 160])
     b_MLP11 = bias_variable([160])
-    output = tf.nn.relu(conv2d(output, W_MLP11) + b_MLP11)
+    if args.elu:
+        output = tf.nn.elu(conv2d(output, W_MLP11) + b_MLP11)
+    else:
+        output = tf.nn.relu(conv2d(output, W_MLP11) + b_MLP11)
 
     ## mlp-1-2
     W_MLP12 = weight_variable([1, 1, 160, 96])
     b_MLP12 = bias_variable([96])
-    output = tf.nn.relu(conv2d(output, W_MLP12) + b_MLP12)
+    if args.elu:
+        output = tf.nn.elu(conv2d(output, W_MLP12) + b_MLP12)
+    else:
+        output = tf.nn.relu(conv2d(output, W_MLP12) + b_MLP12)
 
     ## max pooling
     output = max_pool_3x3(output)
@@ -192,17 +202,26 @@ if __name__ == '__main__':
     ## conv-2
     W_conv2 = weight_variable([5, 5, 96, 192])
     b_conv2 = tf.Variable(tf.random_normal([192], stddev=0.01, dtype=tf.float32))
-    output = tf.nn.relu(conv2d(output, W_conv2) + b_conv2)
+    if args.elu:
+        output = tf.nn.elu(conv2d(output, W_conv2) + b_conv2)
+    else:
+        output = tf.nn.relu(conv2d(output, W_conv2) + b_conv2)
 
     ## mlp-2-1
     W_MLP21 = weight_variable([1, 1, 192, 192])
     b_MLP21 = bias_variable([192])
-    output = tf.nn.relu(conv2d(output, W_MLP21) + b_MLP21)
+    if args.elu:
+        output = tf.nn.elu(conv2d(output, W_MLP21) + b_MLP21)
+    else:
+        output = tf.nn.relu(conv2d(output, W_MLP21) + b_MLP21)
 
     ## mlp-2-2
     W_MLP22 = weight_variable([1, 1, 192, 192])
     b_MLP22 = bias_variable([192])
-    output = tf.nn.relu(conv2d(output, W_MLP22) + b_MLP22)
+    if args.elu:
+        output = tf.nn.elu(conv2d(output, W_MLP22) + b_MLP22)
+    else:
+        output = tf.nn.relu(conv2d(output, W_MLP22) + b_MLP22)
 
     ## max pooling
     output = max_pool_3x3(output)
@@ -213,17 +232,26 @@ if __name__ == '__main__':
     ## conv-3 layer
     W_conv3 = weight_variable([3, 3, 192, 192])
     b_conv3 = tf.Variable(tf.random_normal([192], stddev=0.01, dtype=tf.float32))
-    output = tf.nn.relu(conv2d(output, W_conv3) + b_conv3)
+    if args.elu:
+        output = tf.nn.elu(conv2d(output, W_conv3) + b_conv3)
+    else:
+        output = tf.nn.relu(conv2d(output, W_conv3) + b_conv3)
 
     ## mlp-2-1
     W_MLP31 = weight_variable([1, 1, 192, 192])
     b_MLP31 = bias_variable([192])
-    output = tf.nn.relu(conv2d(output, W_MLP31) + b_MLP31)
+    if args.elu:
+        output = tf.nn.elu(conv2d(output, W_MLP31) + b_MLP31)
+    else:
+        output = tf.nn.relu(conv2d(output, W_MLP31) + b_MLP31)
 
     ## mlp-2-2
     W_MLP32 = weight_variable([1, 1, 192, 10])
     b_MLP32 = bias_variable([10])
-    output = tf.nn.relu(conv2d(output, W_MLP32) + b_MLP32)
+    if args.elu:
+        output = tf.nn.elu(conv2d(output, W_MLP32) + b_MLP32)
+    else:
+        output = tf.nn.relu(conv2d(output, W_MLP32) + b_MLP32)
 
     ## global average
     output = tf.nn.avg_pool(output, ksize=[1, 8, 8, 1], strides=[1, 1, 1, 1], padding='VALID')
