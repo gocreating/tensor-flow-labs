@@ -15,15 +15,51 @@ tar -xvzf ./cifar-10-python.tar.gz
 
 ## Up and Running
 
-> Use `nohup` to keep program alive
+Setup tensorflow virtual environment:
 
 ``` bash
 source ~/tensorflow/bin/activate
-nohup python -u NIN-for-CIFAR-10.py --log "no-aug-logs.csv" &
-nohup python -u NIN-for-CIFAR-10.py --log "aug-logs.csv" --aug &
-nohup python -u NIN-for-CIFAR-10.py --log "aug-elu-logs.csv" --aug --elu &
-nohup python -u NIN-for-CIFAR-10.py --log "aug-wi-logs.csv" --aug --weight-initial &
 ```
+
+Use `nohup` to keep program alive:
+
+``` bash
+# nothing applied
+nohup python -u NIN-for-CIFAR-10.py --log "no-aug-logs.csv" &
+# augmentation
+nohup python -u NIN-for-CIFAR-10.py --log "aug-logs.csv" --aug &
+# augmentation + elu
+nohup python -u NIN-for-CIFAR-10.py --log "aug-elu-logs.csv" --aug --elu &
+# augmentation + weight initialization
+nohup python -u NIN-for-CIFAR-10.py --log "aug-wi-logs.csv" --aug --weight-initial &
+# augmentation + batch normalization
+nohup python -u NIN-for-CIFAR-10.py --log "aug-bn-logs.csv" --aug --bn &
+# augmentation + elu + weight initialization
+nohup python -u NIN-for-CIFAR-10.py --log "aug-elu-wi-logs.csv" --aug --elu --weight-initial &
+# augmentation + elu + batch normalization
+nohup python -u NIN-for-CIFAR-10.py --log "aug-elu-bn-logs.csv" --aug --elu --bn &
+```
+
+## Log Visualization
+
+Generate `accuracy.jpg`, `error.jpg` and `loss.jpg`
+
+``` bash
+python plot.py --log "<log_file>.csv"
+```
+
+## Result
+
+| elu | weight initialization | BN | Final Accuracy |
+| --- | --- | --- | --- |
+|   |   |   | [0.841](./results/aug) |
+| v |   |   | [0.863](./results/aug-elu) |
+|   | v |   | Not Converging |
+|   |   | v | [0.883](./results/aug-bn) |
+| v | v |   | -     |
+| v |   | v | [等待中](./results/aug-elu-bn) |
+|   | v | v | [未跑](./results/aug-wi-bn) |
+| v | v | v | [未跑](./results/aug-elu-wi-bn) |
 
 ## Sample Console Logs
 
@@ -84,14 +120,6 @@ Epoch 23, Test accuracy 0.290762, Train loss 1.8833787862, Elapsed time 1175.2s
 ...
 ```
 
-## Plot
-
-``` bash
-python plot.py --log "no-aug-logs.csv"
-python plot.py --log "aug-logs.csv"
-python plot.py --log "aug-elu-logs.csv"
-```
-
 ## Windows
 
 ### Installation of CPU Version
@@ -108,6 +136,31 @@ pip install --ignore-installed --upgrade https://storage.googleapis.com/tensorfl
 
 ```
 activate tensorflow
+```
+
+### Sample Console Logs
+
+It's really not recommended to use CPU version.
+
+It took up to 3700 seconds to finish just 1 epoch of the default version(no data augmentation, not using elu, no weight initialization and not using batch normalization)
+
+```
+Epoch 0, Test accuracy 0.101266, Train loss 2.30255841782, Elapsed time 1118.2s
+Epoch 1, Test accuracy 0.318236, Train loss 1.73775102781, Elapsed time 4867.4s
+Epoch 2, Test accuracy 0.439577, Train loss 1.47241931163, Elapsed time 8601.5s
+Epoch 3, Test accuracy 0.541634, Train loss 1.21320135651, Elapsed time 12354.0s
+Epoch 4, Test accuracy 0.600079, Train loss 1.07322646498, Elapsed time 16140.3s
+Epoch 5, Test accuracy 0.655459, Train loss 0.924272480828, Elapsed time 19902.0s
+Epoch 6, Test accuracy 0.668809, Train loss 0.863943901056, Elapsed time 23673.7s
+Epoch 7, Test accuracy 0.700949, Train loss 0.780749371747, Elapsed time 27458.5s
+Epoch 8, Test accuracy 0.720431, Train loss 0.706208645154, Elapsed time 31252.7s
+Epoch 9, Test accuracy 0.731903, Train loss 0.66900576289, Elapsed time 35065.9s
+Epoch 10, Test accuracy 0.75623, Train loss 0.587163880887, Elapsed time 38960.1s
+Epoch 11, Test accuracy 0.752868, Train loss 0.585411774685, Elapsed time 42816.9s
+Epoch 12, Test accuracy 0.772547, Train loss 0.532328287964, Elapsed time 46686.8s
+Epoch 13, Test accuracy 0.769778, Train loss 0.547780972155, Elapsed time 50546.1s
+Epoch 14, Test accuracy 0.779173, Train loss 0.494357929205, Elapsed time 54419.0s
+...
 ```
 
 ## Reference
