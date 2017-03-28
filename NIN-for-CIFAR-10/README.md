@@ -38,6 +38,8 @@ nohup python -u NIN-for-CIFAR-10.py --log "aug-bn-logs.csv" --aug --bn &
 nohup python -u NIN-for-CIFAR-10.py --log "aug-elu-wi-logs.csv" --aug --elu --weight-initial &
 # augmentation + elu + batch normalization
 nohup python -u NIN-for-CIFAR-10.py --log "aug-elu-bn-logs.csv" --aug --elu --bn &
+# augmentation + weight initialization + batch normalization
+nohup python -u NIN-for-CIFAR-10.py --log "aug-wi-bn-logs.csv" --aug --weight-initial --bn &
 ```
 
 ## Log Visualization
@@ -57,8 +59,8 @@ python plot.py --log "<log_file>.csv"
 |   | v |   | Not Converging |
 |   |   | v | [0.883](./results/aug-bn) |
 | v | v |   | -     |
-| v |   | v | [等待中](./results/aug-elu-bn) |
-|   | v | v | [未跑](./results/aug-wi-bn) |
+| v |   | v | [0.886](./results/aug-elu-bn) |
+|   | v | v | Not Converging |
 | v | v | v | [未跑](./results/aug-elu-wi-bn) |
 
 ## Sample Console Logs
