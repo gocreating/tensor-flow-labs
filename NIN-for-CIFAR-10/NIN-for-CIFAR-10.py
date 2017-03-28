@@ -275,7 +275,6 @@ if __name__ == '__main__':
     # initize variable
     sess.run(tf.global_variables_initializer())
 
-
     BREAK_POINTS = [{
         'epochs': [1, 80],
         'learning_rate': 0.1,
