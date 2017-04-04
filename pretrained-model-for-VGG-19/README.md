@@ -18,3 +18,7 @@ nohup python -u pretrained-model-for-VGG-19.py --log "no-aug-logs.csv" &
 # augmentation
 nohup python -u pretrained-model-for-VGG-19.py --log "aug-logs.csv" --aug &
 ```
+
+## Reference
+
+- <https://github.com/machrisaa/tensorflow-vgg>
