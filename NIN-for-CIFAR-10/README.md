@@ -44,14 +44,6 @@ nohup python -u NIN-for-CIFAR-10.py --log "aug-wi-bn-logs.csv" --aug --weight-in
 nohup python -u NIN-for-CIFAR-10.py --log "aug-elu-wi-bn-logs.csv" --aug --elu --weight-initial --bn &
 ```
 
-## Log Visualization
-
-Generate `accuracy.jpg`, `error.jpg` and `loss.jpg`
-
-``` bash
-python plot.py --log "<log_file>.csv"
-```
-
 ## Result
 
 | elu | weight initialization | BN | Final Accuracy |
