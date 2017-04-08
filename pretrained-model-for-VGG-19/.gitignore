@@ -1,2 +1,5 @@
 /*.csv
 /vgg19.npy
+/accuracy.jpg
+/error.jpg
+/loss.jpg
