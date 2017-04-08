@@ -1,20 +1,20 @@
+import argparse
 import numpy as np
 import tensorflow as tf
 
 import vgg19
 import utils
 
-img1 = utils.load_image("./test-data/tiger.jpeg")
-img2 = utils.load_image("./test-data/puzzle.jpeg")
+parser = argparse.ArgumentParser()
+parser.add_argument('--img', type=str, help='Filename of image')
+args = parser.parse_args()
 
-batch1 = img1.reshape((1, 224, 224, 3))
-batch2 = img2.reshape((1, 224, 224, 3))
-
-batch = np.concatenate((batch1, batch2), 0)
+img = utils.load_image(args.img or './test-data/tiger.jpeg')
+batch = img.reshape((1, 224, 224, 3))
 
 with tf.device('/cpu:0'):
     with tf.Session() as sess:
-        images = tf.placeholder("float", [2, 224, 224, 3])
+        images = tf.placeholder("float", [1, 224, 224, 3])
         feed_dict = {images: batch}
 
         vgg = vgg19.Vgg19()
@@ -23,4 +23,3 @@ with tf.device('/cpu:0'):
 
         prob = sess.run(vgg.prob, feed_dict=feed_dict)
         utils.print_prob(prob[0], './synset.txt')
-        utils.print_prob(prob[1], './synset.txt')
