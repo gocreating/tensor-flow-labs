@@ -13,7 +13,15 @@ Download [vgg19.npy](https://mega.nz/!xZ8glS6J!MAnE91ND_WyfZ_8mvkuSa2YcA7q-1ehfS
 ## Up and Running
 
 ``` bash
-python flexible-pretrained-VGG-19-model.py
+python flexible-pretrained-VGG-19-model.py [--img <image path>]
+```
+
+### Example
+
+``` bash
+python flexible-pretrained-VGG-19-model.py --img "./test-data/puzzle.jpeg"
+python flexible-pretrained-VGG-19-model.py --img "./test-data/dog.jpg"
+python flexible-pretrained-VGG-19-model.py --img "./test-data/trump.jpg"
 ```
 
 ## Reference
