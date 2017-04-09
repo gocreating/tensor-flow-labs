@@ -10,6 +10,7 @@ parser.add_argument('--log', type=str, help='Filename of logs')
 parser.add_argument("--aug", dest='aug', action='store_true', help='Apply data augmentation on training data')
 parser.add_argument("--elu", dest='elu', action='store_true', help='Use elu instead of relu')
 parser.add_argument("--bn", dest='bn', action='store_true', help='Use batch normalization')
+parser.add_argument("--random-init", dest='ri', action='store_true', help='Use random initialization')
 args = parser.parse_args()
 
 DROPOUT_RATE = 0.5
@@ -82,6 +83,10 @@ def read_data_sets():
     testingData['raw_y'] = dataMap['labels']
     testingData['x'] = normalize(testingData['raw_x'])
     testingData['y'] = one_hot(np.array(testingData['raw_y']))
+
+def weight_variable(shape, stddev=0.03):
+    initial = tf.random_normal(shape, stddev=stddev, dtype=tf.float32)
+    return tf.Variable(initial)
 
 def conv2d(x, W):
     return tf.nn.conv2d(x, W, strides=[1, 1, 1, 1], padding='SAME')
@@ -161,95 +166,95 @@ if __name__ == '__main__':
     x_image = tf.reshape(x, [-1, 32, 32, 3])
 
     # conv1_1
-    W_conv1_1 = params_dict['conv1_1'][0]
-    b_conv1_1 = params_dict['conv1_1'][1]
+    W_conv1_1 = params_dict['conv1_1'][0] if not args.ri else weight_variable([3, 3, 3, 64])
+    b_conv1_1 = params_dict['conv1_1'][1] if not args.ri else weight_variable([64])
     output = conditional_bn_and_act(conv2d(x_image, W_conv1_1), b_conv1_1, is_training, 'conv1_1')
 
     # conv1_2
-    W_conv1_2 = params_dict['conv1_2'][0]
-    b_conv1_2 = params_dict['conv1_2'][1]
+    W_conv1_2 = params_dict['conv1_2'][0] if not args.ri else weight_variable([3, 3, 64, 64])
+    b_conv1_2 = params_dict['conv1_2'][1] if not args.ri else weight_variable([64])
     output = conditional_bn_and_act(conv2d(output, W_conv1_2), b_conv1_2, is_training, 'conv1_2')
 
     # pool1
     output = max_pool_2x2(output)
 
     # conv2_1
-    W_conv2_1 = params_dict['conv2_1'][0]
-    b_conv2_1 = params_dict['conv2_1'][1]
+    W_conv2_1 = params_dict['conv2_1'][0] if not args.ri else weight_variable([3, 3, 64, 128])
+    b_conv2_1 = params_dict['conv2_1'][1] if not args.ri else weight_variable([128])
     output = conditional_bn_and_act(conv2d(output, W_conv2_1), b_conv2_1, is_training, 'conv2_1')
 
     # conv2_2
-    W_conv2_2 = params_dict['conv2_2'][0]
-    b_conv2_2 = params_dict['conv2_2'][1]
+    W_conv2_2 = params_dict['conv2_2'][0] if not args.ri else weight_variable([3, 3, 128, 128])
+    b_conv2_2 = params_dict['conv2_2'][1] if not args.ri else weight_variable([128])
     output = conditional_bn_and_act(conv2d(output, W_conv2_2), b_conv2_2, is_training, 'conv2_2')
 
     # pool2
     output = max_pool_2x2(output)
 
     # conv3_1
-    W_conv3_1 = params_dict['conv3_1'][0]
-    b_conv3_1 = params_dict['conv3_1'][1]
+    W_conv3_1 = params_dict['conv3_1'][0] if not args.ri else weight_variable([3, 3, 128, 256])
+    b_conv3_1 = params_dict['conv3_1'][1] if not args.ri else weight_variable([256])
     output = conditional_bn_and_act(conv2d(output, W_conv3_1), b_conv3_1, is_training, 'conv3_1')
 
     # conv3_2
-    W_conv3_2 = params_dict['conv3_2'][0]
-    b_conv3_2 = params_dict['conv3_2'][1]
+    W_conv3_2 = params_dict['conv3_2'][0] if not args.ri else weight_variable([3, 3, 256, 256])
+    b_conv3_2 = params_dict['conv3_2'][1] if not args.ri else weight_variable([256])
     output = conditional_bn_and_act(conv2d(output, W_conv3_2), b_conv3_2, is_training, 'conv3_2')
 
     # conv3_3
-    W_conv3_3 = params_dict['conv3_3'][0]
-    b_conv3_3 = params_dict['conv3_3'][1]
+    W_conv3_3 = params_dict['conv3_3'][0] if not args.ri else weight_variable([3, 3, 256, 256])
+    b_conv3_3 = params_dict['conv3_3'][1] if not args.ri else weight_variable([256])
     output = conditional_bn_and_act(conv2d(output, W_conv3_3), b_conv3_3, is_training, 'conv3_3')
 
     # conv3_4
-    W_conv3_4 = params_dict['conv3_4'][0]
-    b_conv3_4 = params_dict['conv3_4'][1]
+    W_conv3_4 = params_dict['conv3_4'][0] if not args.ri else weight_variable([3, 3, 256, 256])
+    b_conv3_4 = params_dict['conv3_4'][1] if not args.ri else weight_variable([256])
     output = conditional_bn_and_act(conv2d(output, W_conv3_4), b_conv3_4, is_training, 'conv3_4')
 
     # pool3
     output = max_pool_2x2(output)
 
     # conv4_1
-    W_conv4_1 = params_dict['conv4_1'][0]
-    b_conv4_1 = params_dict['conv4_1'][1]
+    W_conv4_1 = params_dict['conv4_1'][0] if not args.ri else weight_variable([3, 3, 256, 512])
+    b_conv4_1 = params_dict['conv4_1'][1] if not args.ri else weight_variable([512])
     output = conditional_bn_and_act(conv2d(output, W_conv4_1), b_conv4_1, is_training, 'conv4_1')
 
     # conv4_2
-    W_conv4_2 = params_dict['conv4_2'][0]
-    b_conv4_2 = params_dict['conv4_2'][1]
+    W_conv4_2 = params_dict['conv4_2'][0] if not args.ri else weight_variable([3, 3, 512, 512])
+    b_conv4_2 = params_dict['conv4_2'][1] if not args.ri else weight_variable([512])
     output = conditional_bn_and_act(conv2d(output, W_conv4_2), b_conv4_2, is_training, 'conv4_2')
 
     # conv4_3
-    W_conv4_3 = params_dict['conv4_3'][0]
-    b_conv4_3 = params_dict['conv4_3'][1]
+    W_conv4_3 = params_dict['conv4_3'][0] if not args.ri else weight_variable([3, 3, 512, 512])
+    b_conv4_3 = params_dict['conv4_3'][1] if not args.ri else weight_variable([512])
     output = conditional_bn_and_act(conv2d(output, W_conv4_3), b_conv4_3, is_training, 'conv4_3')
 
     # conv4_4
-    W_conv4_4 = params_dict['conv4_4'][0]
-    b_conv4_4 = params_dict['conv4_4'][1]
+    W_conv4_4 = params_dict['conv4_4'][0] if not args.ri else weight_variable([3, 3, 512, 512])
+    b_conv4_4 = params_dict['conv4_4'][1] if not args.ri else weight_variable([512])
     output = conditional_bn_and_act(conv2d(output, W_conv4_4), b_conv4_4, is_training, 'conv4_4')
 
     # pool4
     output = max_pool_2x2(output)
 
     # conv5_1
-    W_conv5_1 = params_dict['conv5_1'][0]
-    b_conv5_1 = params_dict['conv5_1'][1]
+    W_conv5_1 = params_dict['conv5_1'][0] if not args.ri else weight_variable([3, 3, 512, 512])
+    b_conv5_1 = params_dict['conv5_1'][1] if not args.ri else weight_variable([512])
     output = conditional_bn_and_act(conv2d(output, W_conv5_1), b_conv5_1, is_training, 'conv5_1')
 
     # conv5_2
-    W_conv5_2 = params_dict['conv5_2'][0]
-    b_conv5_2 = params_dict['conv5_2'][1]
+    W_conv5_2 = params_dict['conv5_2'][0] if not args.ri else weight_variable([3, 3, 512, 512])
+    b_conv5_2 = params_dict['conv5_2'][1] if not args.ri else weight_variable([512])
     output = conditional_bn_and_act(conv2d(output, W_conv5_2), b_conv5_2, is_training, 'conv5_2')
 
     # conv5_3
-    W_conv5_3 = params_dict['conv5_3'][0]
-    b_conv5_3 = params_dict['conv5_3'][1]
+    W_conv5_3 = params_dict['conv5_3'][0] if not args.ri else weight_variable([3, 3, 512, 512])
+    b_conv5_3 = params_dict['conv5_3'][1] if not args.ri else weight_variable([512])
     output = conditional_bn_and_act(conv2d(output, W_conv5_3), b_conv5_3, is_training, 'conv5_3')
 
     # conv5_4
-    W_conv5_4 = params_dict['conv5_4'][0]
-    b_conv5_4 = params_dict['conv5_4'][1]
+    W_conv5_4 = params_dict['conv5_4'][0] if not args.ri else weight_variable([3, 3, 512, 512])
+    b_conv5_4 = params_dict['conv5_4'][1] if not args.ri else weight_variable([512])
     output = conditional_bn_and_act(conv2d(output, W_conv5_4), b_conv5_4, is_training, 'conv5_4')
 
     # reshape
