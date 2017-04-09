@@ -24,6 +24,14 @@ nohup python -u retrained-VGG-19-model-for-CIFAR-10.py --random-init --log "ri-a
 nohup python -u retrained-VGG-19-model-for-CIFAR-10.py --random-init --log "ri-aug-bn-logs.csv" --aug --bn &
 ```
 
+## Visualization
+
+Generate comparison plots
+
+``` bash
+python plot.py --log1 ./results/aug/aug-logs.csv --log2 ./results/ri-aug/ri-aug-logs.csv
+```
+
 ## Reference
 
 - <https://github.com/machrisaa/tensorflow-vgg>
