@@ -30,6 +30,7 @@ Generate comparison plots
 
 ``` bash
 python plot.py --log1 ./results/aug/aug-logs.csv --log2 ./results/ri-aug/ri-aug-logs.csv
+python plot.py --log1 ./results/aug-bn/aug-bn-logs.csv --log2 ./results/ri-aug-bn/ri-aug-bn-logs.csv
 ```
 
 ## Reference
