@@ -39,8 +39,8 @@ public:
   //-------------TO DO--------------------------------
   		// set tuple features
   		// example: feature::list().push_back(new pattern<4>(0, 1, 2, 3));
-  		feature::list().push_back(new pattern<4>(0, 4, 8, 12));
-  		feature::list().push_back(new pattern<4>(1, 5, 9, 13));
+  		// feature::list().push_back(new pattern<4>(0, 4, 8, 12));
+  		// feature::list().push_back(new pattern<4>(1, 5, 9, 13));
   		feature::list().push_back(new pattern<6>(0, 1, 4, 5, 8, 12));
   		feature::list().push_back(new pattern<6>(1, 2, 5, 6, 9, 13));
   //--------------------------------------------------
@@ -85,12 +85,19 @@ public:
   			state& spp = eb[i].spp;
   //-------------TO DO--------------------------------
   			if (i == eb.size() - 1) {					// the last experience!!
-
+  				// state _spp(spp);
+  				// int dirNext = get_best_move(_spp);
+  				// _spp.move(dirNext);
+  				// state spNext(_spp);
+  				// float rewardNext = spNext.get_reward();
+  				// float valueSpNext = spNext.evaluate_score();
+  				// float valueSp = sp.evaluate_score();
+  				// error = rewardNext + valueSpNext - valueSp;
   			}
   			else {
   				int dirNext = get_best_move(spp);
   				spp.move(dirNext);
-  				state spNext = spp;
+  				state spNext(spp);
   				float rewardNext = spNext.get_reward();
   				float valueSpNext = spNext.evaluate_score();
   				float valueSp = sp.evaluate_score();

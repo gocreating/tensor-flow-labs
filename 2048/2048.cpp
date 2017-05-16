@@ -444,8 +444,8 @@ public:
 //-------------TO DO--------------------------------
 		// set tuple features
 		// example: feature::list().push_back(new pattern<4>(0, 1, 2, 3));
-		feature::list().push_back(new pattern<4>(0, 4, 8, 12));
-		feature::list().push_back(new pattern<4>(1, 5, 9, 13));
+		// feature::list().push_back(new pattern<4>(0, 4, 8, 12));
+		// feature::list().push_back(new pattern<4>(1, 5, 9, 13));
 		feature::list().push_back(new pattern<6>(0, 1, 4, 5, 8, 12));
 		feature::list().push_back(new pattern<6>(1, 2, 5, 6, 9, 13));
 //--------------------------------------------------
@@ -490,12 +490,19 @@ public:
 			state& spp = eb[i].spp;
 //-------------TO DO--------------------------------
 			if (i == eb.size() - 1) {					// the last experience!!
-
+				// state _spp(spp);
+				// int dirNext = get_best_move(_spp);
+				// _spp.move(dirNext);
+				// state spNext(_spp);
+				// float rewardNext = spNext.get_reward();
+				// float valueSpNext = spNext.evaluate_score();
+				// float valueSp = sp.evaluate_score();
+				// error = rewardNext + valueSpNext - valueSp;
 			}
 			else {
 				int dirNext = get_best_move(spp);
 				spp.move(dirNext);
-				state spNext = spp;
+				state spNext(spp);
 				float rewardNext = spNext.get_reward();
 				float valueSpNext = spNext.evaluate_score();
 				float valueSp = sp.evaluate_score();
@@ -509,8 +516,8 @@ public:
 };
 
 int main(int argc, const char* argv[]) {
-	std::string load = "weights-048c-159d-01458c-12569d";
-	std::string save = "weights-048c-159d-01458c-12569d";
+	std::string load = "weights";
+	std::string save = "weights";
 
 	AI::set_tuples();
 
@@ -593,17 +600,19 @@ int main(int argc, const char* argv[]) {
 			}
 		}
 
-	}
-	// save weight table to binary file
-	std::ofstream out;
-	out.open(save.c_str(), std::ios::out | std::ios::binary | std::ios::trunc);
-	if (out.is_open()) {
-		for (size_t i = 0; i < feature::list().size(); i++) {
-			out << *(feature::list()[i]);
-			std::cout << feature::list()[i]->name() << " is saved to " << save << std::endl;
+		// save weight table to binary file
+		if ((n + 1) % 100000 == 0) {
+			std::ofstream out;
+			out.open(save.c_str(), std::ios::out | std::ios::binary | std::ios::trunc);
+			if (out.is_open()) {
+				for (size_t i = 0; i < feature::list().size(); i++) {
+					out << *(feature::list()[i]);
+					std::cout << feature::list()[i]->name() << " is saved to " << save << std::endl;
+				}
+				out.flush();
+				out.close();
+			}
 		}
-		out.flush();
-		out.close();
 	}
 	return 0;
 }
