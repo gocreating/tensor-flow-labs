@@ -438,10 +438,6 @@ public:
 	state spp;
 };
 
-int argMax(std::vector<float> vec) {
-	return std::max_element(vec.begin(), vec.end()) - vec.begin();
-}
-
 class AI {
 public:
 	static void set_tuples() {
@@ -457,48 +453,41 @@ public:
 		// feature::list().push_back(new pattern<4>(8, 9, 10, 11));
 		// feature::list().push_back(new pattern<4>(12, 13, 14, 15));
 //--------------------------------------------------
-		// feature::list().push_back(new pattern<4>(0, 1, 4, 5, 8, 12));
-		// feature::list().push_back(new pattern<4>(1, 2, 5, 6, 9, 13));
-	}
-
-	static float approximateValue(state s) {
-		float approximatedValue = 0;
-		for (size_t i = 0; i < feature::list().size(); i++) {
-			approximatedValue += feature::list()[i] -> estimate(s.get_board());
-		}
-		return approximatedValue;
+		feature::list().push_back(new pattern<6>(0, 1, 4, 5, 8, 12));
+		feature::list().push_back(new pattern<6>(1, 2, 5, 6, 9, 13));
 	}
 
 	static int get_best_move(state s) {			// return best move dir
 //-------------TO DO--------------------------------
-		std::vector<float> evaluatedReturns;
+		std::vector<float> returns;
 		int rewards[4];
 		for (int dir = 0; dir < 4; dir++) {
-			rewards[dir] = s.move(dir);
-			// float reward = s.move(dir);
-			float approximatedValue = 0;
+			state current_state = s;
+			rewards[dir] = current_state.move(dir);
+			state sp = current_state;
+			float evaluatedReturn = 0.0;
 
 			if (rewards[dir] != -1) {
-				approximatedValue = approximateValue(s);
+				evaluatedReturn = rewards[dir] + sp.evaluate_score();
+			} else {
+				evaluatedReturn = -9999999999999999;
 			}
-			evaluatedReturns.push_back(rewards[dir] + approximatedValue);
+			returns.push_back(evaluatedReturn);
 		}
 
 		float maxReturn = -999999999999999;
-		int maxReturnDir = -1;
+		int bestDir = -1;
 
 		for (int dir = 0; dir < 4; dir++) {
-			if (evaluatedReturns[dir] > maxReturn) {
-				maxReturn = evaluatedReturns[dir];
-				maxReturnDir = dir;
+			if (returns[dir] > maxReturn) {
+				maxReturn = returns[dir];
+				bestDir = dir;
 			}
 		}
 
-		// int maxReturnDir = argMax(evaluatedReturns);
-		return maxReturnDir;
+		return bestDir;
 //--------------------------------------------------
 	}
-
 
 	static void update_tuple_values(std::vector<experience> eb, float learning_rate) {
 		for (int i = eb.size() - 1; i >= 0; i--) {
@@ -511,12 +500,12 @@ public:
 			}
 			else {
 				int dirNext = get_best_move(spp);
-				float rewardNext = spp.move(dirNext);
-				if (rewardNext != -1) {
-					float approximatedValueOfSpNext = approximateValue(spp);
-					float approximatedValueOfSp = approximateValue(sp);
-					error = rewardNext + approximatedValueOfSpNext - approximatedValueOfSp;
-				}
+				spp.move(dirNext);
+				state spNext = spp;
+				float rewardNext = spNext.get_reward();
+				float valueSpNext = spNext.evaluate_score();
+				float valueSp = sp.evaluate_score();
+				error = rewardNext + valueSpNext - valueSp;
 			}
 //--------------------------------------------------
 			for (size_t i = 0; i < feature::list().size(); i++)
