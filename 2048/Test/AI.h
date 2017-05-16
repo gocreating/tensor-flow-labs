@@ -41,34 +41,64 @@ public:
   		// example: feature::list().push_back(new pattern<4>(0, 1, 2, 3));
   		feature::list().push_back(new pattern<4>(0, 4, 8, 12));
   		feature::list().push_back(new pattern<4>(1, 5, 9, 13));
-  		feature::list().push_back(new pattern<4>(2, 6, 10, 14));
-  		feature::list().push_back(new pattern<4>(3, 7, 11, 15));
-  		feature::list().push_back(new pattern<4>(0, 1, 2, 3));
-  		feature::list().push_back(new pattern<4>(4, 5, 6, 7));
-  		feature::list().push_back(new pattern<4>(8, 9, 10, 11));
-  		feature::list().push_back(new pattern<4>(12, 13, 14, 15));
+  		feature::list().push_back(new pattern<6>(0, 1, 4, 5, 8, 12));
+  		feature::list().push_back(new pattern<6>(1, 2, 5, 6, 9, 13));
   //--------------------------------------------------
-  	}
-
-    static float approximateValue(state s) {
-  		float approximatedValue = 0;
-  		for (size_t i = 0; i < feature::list().size(); i++) {
-  			approximatedValue += feature::list()[i] -> estimate(s.get_board());
-  		}
-  		return approximatedValue;
   	}
 
   	static int get_best_move(state s) {			// return best move dir
   //-------------TO DO--------------------------------
-  		std::vector<float> evaluatedReturns;
+  		std::vector<float> returns;
+  		int rewards[4];
   		for (int dir = 0; dir < 4; dir++) {
-  			float reward = s.move(dir);
-  			float approximatedValue = approximateValue(s);
-  			evaluatedReturns.push_back(reward + approximatedValue);
+  			state current_state = s;
+  			rewards[dir] = current_state.move(dir);
+  			state sp = current_state;
+  			float evaluatedReturn = 0.0;
+
+  			if (rewards[dir] != -1) {
+  				evaluatedReturn = rewards[dir] + sp.evaluate_score();
+  			} else {
+  				evaluatedReturn = -9999999999999999;
+  			}
+  			returns.push_back(evaluatedReturn);
   		}
-  		int maxReturnDir = argMax(evaluatedReturns);
-  		return maxReturnDir;
+
+  		float maxReturn = -999999999999999;
+  		int bestDir = -1;
+
+  		for (int dir = 0; dir < 4; dir++) {
+  			if (returns[dir] > maxReturn) {
+  				maxReturn = returns[dir];
+  				bestDir = dir;
+  			}
+  		}
+
+  		return bestDir;
   //--------------------------------------------------
   	}
 
+  	static void update_tuple_values(std::vector<experience> eb, float learning_rate) {
+  		for (int i = eb.size() - 1; i >= 0; i--) {
+  			float error = 0.0;
+  			state& sp = eb[i].sp;
+  			state& spp = eb[i].spp;
+  //-------------TO DO--------------------------------
+  			if (i == eb.size() - 1) {					// the last experience!!
+
+  			}
+  			else {
+  				int dirNext = get_best_move(spp);
+  				spp.move(dirNext);
+  				state spNext = spp;
+  				float rewardNext = spNext.get_reward();
+  				float valueSpNext = spNext.evaluate_score();
+  				float valueSp = sp.evaluate_score();
+  				error = rewardNext + valueSpNext - valueSp;
+  			}
+  //--------------------------------------------------
+  			for (size_t i = 0; i < feature::list().size(); i++)
+  				feature::list()[i]->update(sp.get_board(), error * learning_rate);
+  		}
+  	}
 };

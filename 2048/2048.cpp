@@ -446,15 +446,9 @@ public:
 		// example: feature::list().push_back(new pattern<4>(0, 1, 2, 3));
 		feature::list().push_back(new pattern<4>(0, 4, 8, 12));
 		feature::list().push_back(new pattern<4>(1, 5, 9, 13));
-		// feature::list().push_back(new pattern<4>(2, 6, 10, 14));
-		// feature::list().push_back(new pattern<4>(3, 7, 11, 15));
-		// feature::list().push_back(new pattern<4>(0, 1, 2, 3));
-		// feature::list().push_back(new pattern<4>(4, 5, 6, 7));
-		// feature::list().push_back(new pattern<4>(8, 9, 10, 11));
-		// feature::list().push_back(new pattern<4>(12, 13, 14, 15));
-//--------------------------------------------------
 		feature::list().push_back(new pattern<6>(0, 1, 4, 5, 8, 12));
 		feature::list().push_back(new pattern<6>(1, 2, 5, 6, 9, 13));
+//--------------------------------------------------
 	}
 
 	static int get_best_move(state s) {			// return best move dir
@@ -515,15 +509,15 @@ public:
 };
 
 int main(int argc, const char* argv[]) {
-	std::string load = "weights";
-	std::string save = "weights";
+	std::string load = "weights-048c-159d-01458c-12569d";
+	std::string save = "weights-048c-159d-01458c-12569d";
 
 	AI::set_tuples();
 
 	std::vector<experience> exp_buffer;
 	exp_buffer.reserve(20000);
-	int scores[10000];						// for statistics
-	int maxtile[10000];
+	int scores[1000];						// for statistics
+	int maxtile[1000];
 
 	// load weights from binary file
 	std::ifstream in;
@@ -569,23 +563,23 @@ int main(int argc, const char* argv[]) {
 		exp_buffer.clear();
 
 		// statistics
-		int ep = n % 10000;
+		int ep = n % 1000;
 		scores[ep] = score;
 		maxtile[ep] = 0;
 		for (int i = 0; i < 16; i++)
 			maxtile[ep] = std::max(maxtile[ep], b.at(i));
 
 		// show the training process
-		if ((n + 1) % 10000 == 0) {
+		if ((n + 1) % 1000 == 0) {
 			float sum = 0;
 			int max = 0;
 			int stat[16] = { 0 };
-			for (int i = 0; i < 10000; i++) {
+			for (int i = 0; i < 1000; i++) {
 				sum += scores[i];
 				max = std::max(max, scores[i]);
 				stat[maxtile[i]]++;
 			}
-			float mean = sum / 10000;
+			float mean = sum / 1000;
 			std::cout << (n + 1);
 			std::cout << "\t" "mean = " << mean;
 			std::cout << "\t" "max = " << max;
@@ -593,9 +587,9 @@ int main(int argc, const char* argv[]) {
 
 			int t = 1;
 			while (stat[t] == 0) t++;
-			for (int c = 0; c < 10000; t++) {
+			for (int c = 0; c < 1000; t++) {
 				c += stat[t];
-				std::cout << "\t" << ((1 << t) & -2u) << "\t" << (stat[t] * 0.01) << "%\t(" << (c * 0.01) << "%)" << std::endl;
+				std::cout << "\t" << ((1 << t) & -2u) << "\t" << (stat[t] * 0.1) << "%\t(" << (c * 0.1) << "%)" << std::endl;
 			}
 		}
 
